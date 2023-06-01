@@ -2,16 +2,19 @@
 document.querySelector('button').addEventListener('click', getFetch)
 
 function getFetch(){
-  const choice = document.querySelector('input').value.replaceAll(' ','-').replaceAll('.','').toLowerCase();
+  const choice = document.querySelector('input').value.replaceAll(' ','-').replaceAll('.','').toLowerCase(); 
   const url = `https://pokeapi.co/api/v2/pokemon/${choice}`
 
   fetch(url)
       .then(res => res.json()) // parse response as JSON
       .then(data => {
         console.log(data)
-        const potentialPet = new Poke (data.name, data.height, data.weight, data.types, data.sprites.other['official-artwork'].front_default)
+        const potentialPet = new PokeInfo   (data.name, data.height, data.weight, data.types, data.sprites.other['official-artwork'].front_default, data.location_area_encounters)
+        
         potentialPet.getTypes();
         potentialPet.isItHousepet(); //important
+        potentialPet.encounterInfo();   
+
         let decision = ''
         if (potentialPet.housepet) {
             decision = 'This Pokemon is small enough, light enough, and safe enough to be a good pet!'
@@ -66,5 +69,27 @@ function getFetch(){
         this.reason.push(`it has a bad type of ${this.typeList.join(', ')}`)
         this.housepet = false
     }
+        console.log(this.reason)
   }
+
+}  
+
+class PokeInfo extends Poke {
+    constructor (name, height, weight, types, image, location) {
+        super(name, height, weight, types, image)
+        this.locationURL = location
+        this.locationList = []
+        this.locationString = ''      
+    }
+
+    encounterInfo() {
+        fetch(this.locationURL)
+        .then(res => res.json())  // parse response as JSON
+        .then(data => {
+          console.log(data)
+    })
+        .catch(err => {
+          console.log(`error ${err}`)
+    });
+}
 }

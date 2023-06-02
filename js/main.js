@@ -1,6 +1,9 @@
 //Example fetch using pokemonapi.co
 document.querySelector('button').addEventListener('click', getFetch)
 
+//Button for random Pokemon
+document.querySelector('#random').addEventListener('click, getRandomPokemon)')
+
 function getFetch(){
   const choice = document.querySelector('input').value.replaceAll(' ','-').replaceAll('.','').toLowerCase(); 
   const url = `https://pokeapi.co/api/v2/pokemon/${choice}`
@@ -12,15 +15,16 @@ function getFetch(){
         const potentialPet = new PokeInfo   (data.name, data.height, data.weight, data.types, data.sprites.other['official-artwork'].front_default, data.location_area_encounters)
         
         potentialPet.getTypes();
-        potentialPet.isItHousepet(); //important
-        potentialPet.encounterInfo();   
+        potentialPet.isItHousepet(); //important 
 
-        let decision = ''
+        let decision = ''   
         if (potentialPet.housepet) {
-            decision = 'This Pokemon is small enough, light enough, and safe enough to be a good pet!'
+            decision = `This Pokemon is small enough, light enough, and safe enough to be a good pet! You can find ${potentialPet.name} in the following location(s): `
+            potentialPet.encounterInfo();
+            document.getElementById('locations').innerText = '' 
         } else {
             decision = `This Pokemon would not be a good pet because: ${potentialPet.reason.join(' and ')}.`
-        }
+          }
         document.querySelector('h2').innerText = decision
         document.querySelector('img').src = potentialPet.image
      })
@@ -92,7 +96,8 @@ class PokeInfo extends Poke {
           }
           // console.log(this.locationList)
           // console.log(this.locationCleanup())
-          let target = document.getElementByIdyId('locations')
+          let target = document.getElementById('locations')
+          target.innerText = this.locationCleanup()
 
     })
         .catch(err => {

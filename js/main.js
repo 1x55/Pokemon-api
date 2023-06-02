@@ -12,6 +12,8 @@ function getFetch(){
 
 // added function for code reuse
 function fetchAndDisplayPokemon(url){
+  //clear location information
+  document.getElementById('locations').innerText = '';
   fetch(url)
       .then(res => res.json()) // parse response as JSON
       .then(data => {
@@ -25,7 +27,7 @@ function fetchAndDisplayPokemon(url){
         if (potentialPet.housepet) {
             decision = `This Pokemon is small enough, light enough, and safe enough to be a good pet! You can find ${potentialPet.name} in the following location(s): `
             potentialPet.encounterInfo();
-            document.getElementById('locations').innerText = '' 
+            // document.getElementById('locations').innerText = '' 
         } else {
             decision = `This Pokemon would not be a good pet because: ${potentialPet.reason.join(' and ')}.`
           }
@@ -41,7 +43,7 @@ function fetchAndDisplayPokemon(url){
     function getRandomPokemon() {
       const randomNumber = Math.floor(Math.random()*898) + 1;
       const url = `https://pokeapi.co/api/v2/pokemon/${randomNumber}`
-      fetchAndDisplayPokemon(url) //fetch and disply the random pokemon
+      fetchAndDisplayPokemon(url) //fetch and display the random pokemon
     }
   class Poke {
     constructor (name, height, weight, types, image, abilities) {
@@ -99,10 +101,15 @@ class PokeInfo extends Poke {
     }
 
     encounterInfo() {
-        fetch(this.locationURL)
-        .then(res => res.json())  // parse response as JSON
-        .then(data => {
-          console.log(data)
+      fetch(this.locationURL)
+      .then(res => res.json())  // parse response as JSON
+      .then(data => {
+        console.log(data)
+        //check if location data array is empty. If empty set location information message indicating there is no loaction
+        if (data.length === 0 ) {
+          let target = document.getElementById('locations') // Fix typo here too
+          target.innerText = 'No location information available for this Pokemon.'
+        } else {
           for (const item of data) {
             this.locationList.push(item.location_area.name)
           }
@@ -110,12 +117,12 @@ class PokeInfo extends Poke {
           // console.log(this.locationCleanup())
           let target = document.getElementById('locations')
           target.innerText = this.locationCleanup()
-
-    })
-        .catch(err => {
-          console.log(`error ${err}`)
-    });
-}
+        }
+      })
+      .catch(err => {
+        console.log(`error ${err}`)
+      });
+  }
 //located inside a extended class, method we are calling inside another method, which contains a fetch
 locationCleanup() {
   //get first 5 elements of an array

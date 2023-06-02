@@ -2,17 +2,21 @@
 document.querySelector('button').addEventListener('click', getFetch)
 
 //Button for random Pokemon
-document.querySelector('#random').addEventListener('click, getRandomPokemon)')
+document.querySelector('#random').addEventListener('click', getRandomPokemon)
 
 function getFetch(){
   const choice = document.querySelector('input').value.replaceAll(' ','-').replaceAll('.','').toLowerCase(); 
   const url = `https://pokeapi.co/api/v2/pokemon/${choice}`
+  fetchAndDisplayPokemon(url)
+}
 
+// added function for code reuse
+function fetchAndDisplayPokemon(url){
   fetch(url)
       .then(res => res.json()) // parse response as JSON
       .then(data => {
         console.log(data)
-        const potentialPet = new PokeInfo   (data.name, data.height, data.weight, data.types, data.sprites.other['official-artwork'].front_default, data.location_area_encounters)
+        const potentialPet = new PokeInfo   (data.name, data.height, data.weight, data.types, data.sprites.other['official-artwork'].front_default, data.location_area_encounters, data.abilities)
         
         potentialPet.getTypes();
         potentialPet.isItHousepet(); //important 
@@ -27,13 +31,20 @@ function getFetch(){
           }
         document.querySelector('h2').innerText = decision
         document.querySelector('img').src = potentialPet.image
+        displayAbilities(potentialPet);
      })
       .catch(err => {
           console.log(`error ${err}`)
       });
+  }
+
+    function getRandomPokemon() {
+      const randomNumber = Math.floor(Math.random()*898) + 1;
+      const url = `https://pokeapi.co/api/v2/pokemon/${randomNumber}`
+      fetchAndDisplayPokemon(url) //fetch and disply the random pokemon
     }
   class Poke {
-    constructor (name, height, weight, types, image) {
+    constructor (name, height, weight, types, image, abilities) {
         this.name = name
         this.height = height
         this.types = types
@@ -42,6 +53,7 @@ function getFetch(){
         this.housepet = true
         this.reason = []
         this.typeList = []
+        this.abilities = abilities.map(ability => ability.ability.name);
   }
 
   getTypes() {
@@ -55,7 +67,7 @@ function getFetch(){
     return Math.round((weight/4.536)*100)/100
   }
 
-  heightToFeet (height) {
+  heightToFeet(height) {
     return Math.round((height/3.048)*100)/100
   }
   isItHousepet() {
@@ -79,8 +91,8 @@ function getFetch(){
 }  
 
 class PokeInfo extends Poke {
-    constructor (name, height, weight, types, image, location) {
-        super(name, height, weight, types, image)
+    constructor (name, height, weight, types, image, location, abilities) {
+        super(name, height, weight, types, image, abilities)
         this.locationURL = location
         this.locationList = []
         this.locationString = ''      
@@ -116,4 +128,17 @@ locationCleanup() {
 }
 }
 
- 
+function displayAbilities(pokemon) {
+  const abilityList = document.getElementById('abilities');
+  abilityList.innerHTML = '';
+
+  // Create a header element and set its text
+  const abilitiesHeader = document.createElement('h2');
+  abilitiesHeader.textContent = `${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)} has the following abilities:`;
+  abilityList.appendChild(abilitiesHeader); // append the header to the abilityList
+
+  pokemon.abilities.forEach(ability => {
+    const listItem = document.createElement('li');listItem.textContent = ability;
+    abilityList.appendChild(listItem);
+  });
+}

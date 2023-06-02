@@ -90,8 +90,9 @@ class PokeInfo extends Poke {
           for (const item of data) {
             this.locationList.push(item.location_area.name)
           }
-          console.log(this.locationList)
-          console.log(this.locationCleanup())
+          // console.log(this.locationList)
+          // console.log(this.locationCleanup())
+          let target = document.getElementByIdyId('locations')
 
     })
         .catch(err => {
